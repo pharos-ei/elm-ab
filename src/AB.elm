@@ -1,11 +1,11 @@
 module AB exposing (Model, Msg(..), main)
 
 import A
-import B
 import Browser
 import Html
 import Html.Attributes as HA
 import Html.Events as HE
+import Org
 
 
 main : Program () Model Msg
@@ -15,10 +15,10 @@ main =
             A.init
 
         ( b, cmdB ) =
-            B.init
+            Org.init
     in
     Browser.element
-        { init = \_ -> ( Model a b, Cmd.batch [ Cmd.map UpdateA cmdA, Cmd.map UpdateB cmdB ] )
+        { init = \_ -> ( Model a b, Cmd.batch [ Cmd.map UpdateA cmdA, Cmd.map UpdateOrg cmdB ] )
         , view = view
         , update = update
         , subscriptions = \_ -> Sub.none
@@ -27,13 +27,13 @@ main =
 
 type alias Model =
     { a : A.Model
-    , b : B.Model
+    , b : Org.Model
     }
 
 
 type Msg
     = UpdateA A.Msg
-    | UpdateB B.Msg
+    | UpdateOrg Org.Msg
 
 
 view : Model -> Html.Html Msg
@@ -41,7 +41,7 @@ view model =
     Html.div []
         [ Html.text ("We have " ++ String.fromInt model.a.value ++ " " ++ model.b.value)
         , Html.map UpdateA (A.view model.a)
-        , Html.map UpdateB (B.view model.b)
+        , Html.map UpdateOrg (Org.view model.b)
         ]
 
 
@@ -55,9 +55,17 @@ update msg model =
             in
             ( { model | a = a }, Cmd.map UpdateA cmdA )
 
-        UpdateB bMsg ->
+        UpdateOrg bMsg ->
             let
-                ( b, cmdB ) =
-                    B.update bMsg model.b
+                ( ( b, cmdB ), change ) =
+                    Org.update bMsg model.b
+
+                ( a, cmdA ) =
+                    A.changeOrg change model.a
             in
-            ( { model | b = b }, Cmd.map UpdateB cmdB )
+            ( { model | b = b, a = a }
+            , Cmd.batch
+                [ Cmd.map UpdateOrg cmdB
+                , Cmd.map UpdateA cmdA
+                ]
+            )
