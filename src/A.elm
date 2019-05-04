@@ -1,8 +1,9 @@
-module A exposing (Model, Msg(..), changeOrg, init, update, view)
+module A exposing (Model, Msg(..), changeOrg, init, subscriptions, update, view)
 
 import Html
 import Html.Events as HE
 import Org
+import Time
 
 
 type alias Model =
@@ -12,6 +13,11 @@ type alias Model =
 type Msg
     = Add
     | Sub
+
+
+subscriptions : Model -> Sub Msg
+subscriptions model =
+    Time.every 1000 (\_ -> Add)
 
 
 init =
@@ -37,6 +43,9 @@ changeOrg oMsg model =
                     case org.value of
                         "crows" ->
                             2
+
+                        "fish" ->
+                            -1
 
                         _ ->
                             1

@@ -1,4 +1,4 @@
-module Org exposing (Change(..), Model, Msg(..), init, update, view)
+module Org exposing (Change(..), Model, Msg(..), init, subscriptions, update, view)
 
 import Html
 import Html.Events as HE
@@ -16,6 +16,11 @@ type Change
     = None
     | Loaded Model
     | Changed Model
+
+
+subscriptions : Model -> Sub Msg
+subscriptions model =
+    Sub.none
 
 
 init =

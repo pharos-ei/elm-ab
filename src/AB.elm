@@ -21,7 +21,12 @@ main =
         { init = \_ -> ( Model a b, Cmd.batch [ Cmd.map UpdateA cmdA, Cmd.map UpdateOrg cmdB ] )
         , view = view
         , update = update
-        , subscriptions = \_ -> Sub.none
+        , subscriptions =
+            \model ->
+                Sub.batch
+                    [ Sub.map UpdateA (A.subscriptions model.a)
+                    , Sub.map UpdateOrg (Org.subscriptions model.b)
+                    ]
         }
 
 
@@ -40,8 +45,8 @@ view : Model -> Html.Html Msg
 view model =
     Html.div []
         [ Html.text ("We have " ++ String.fromInt model.a.value ++ " " ++ model.b.value)
-        , Html.map UpdateA (A.view model.a)
         , Html.map UpdateOrg (Org.view model.b)
+        , Html.map UpdateA (A.view model.a)
         ]
 
 
